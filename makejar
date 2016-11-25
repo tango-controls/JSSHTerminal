@@ -1,0 +1,22 @@
+#!/bin/sh
+VERSION=`grep "JTERM_RELEASE" JSSHTerminal/MainPanel.java | awk '{print $7}'`
+echo "Building JTermnial v$VERSION"
+
+TARGET_DIR=/segfs/tango/release/java/appli
+
+# extract needed jar to build
+
+cd build
+jar xvf ../jsch-0.1.54.jar
+cd ..
+
+jar cvf $TARGET_DIR/JSSHTerminal-$VERSION.jar JSSHTerminal/*.class JSSHTerminal/*.png
+
+cd build
+jar uvf $TARGET_DIR/JSSHTerminal-$VERSION.jar *
+
+cd $TARGET_DIR
+rm -f JSSHTerminal.jar
+ln -s JSSHTerminal-$VERSION.jar JSSHTerminal.jar
+chmod g+w JSSHTerminal-$VERSION.jar
+ls -l JSSHTerminal*.jar
