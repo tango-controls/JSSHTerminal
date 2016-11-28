@@ -30,6 +30,7 @@ public final class SSHSession implements UserInfo {
   private int inBufferPos = 0;
   private boolean answerYes = false;
   private boolean x11forwarding = false;
+  private int retryCount;
 
   /**
    * @param parent Parent terminal frame
@@ -42,7 +43,8 @@ public final class SSHSession implements UserInfo {
     _parent = parent;
     terminal = new TerminalEmulator(width, height,scrollSize);
     terminal.reset();
-    _parent.render();
+    _parent.repaint();
+    retryCount = 0;
 
     String defaultSSHDir = System.getProperty("user.home") + "/.ssh";
     JSch jSch = JSchSession.getJSch();
@@ -92,6 +94,8 @@ public final class SSHSession implements UserInfo {
       in = new InputStreamReader(channel.getInputStream());
       channel.setPtyType("xterm");
       channel.connect();
+      //write("ssh -X dserver@l-srrf-8");
+      //write(TerminalEmulator.getCodeENTER());
 
     } catch (JSchException e) {
       throw new IOException(e.getMessage());
@@ -179,7 +183,8 @@ public final class SSHSession implements UserInfo {
           terminal.write(inBuffer,inBufferPos);
           inBufferPos = 0;
           write(terminal.read());
-          _parent.render();
+          _parent.repaint();
+          _parent.updateScrollBar();
         }
       }
       try {
@@ -203,7 +208,8 @@ public final class SSHSession implements UserInfo {
               terminal.write(inBuffer,inBufferPos);
               terminal.write(buf,len);
               inBufferPos = 0;
-              _parent.render();
+              _parent.updateScrollBar();
+              _parent.repaint();
             } else {
               System.arraycopy(buf,0,inBuffer,inBufferPos,len);
               inBufferPos+=len;
@@ -243,13 +249,14 @@ public final class SSHSession implements UserInfo {
 
   @Override
   public String getPassword() {
+    retryCount++;
     return _password;
   }
 
   @Override
   public boolean promptPassword(String message) {
 
-    if(_password!=null) return true;
+    if(_password!=null && retryCount==1) return true;
 
     JPanel panel = new JPanel();
     panel.add(passwordField);

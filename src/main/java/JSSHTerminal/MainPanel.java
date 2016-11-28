@@ -6,18 +6,22 @@ import java.awt.event.*;
 import java.io.IOException;
 
 /**
- * Main terminal frame
+ * SSH Terminal frame
+ *
+ * @author JL PONS
  */
+
 public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelListener {
 
-  private GraphicTerminal textArea;
-  private JScrollBar   scrollBar;
-  private SSHSession   session;
-  private String       _host;
-  private String       _user;
-  private String       _password;
-  private boolean      exitOnClose = false;
-  private boolean      scrollUpdate;
+  //private GraphicTerminal textArea;
+  private TerminalEvent textArea;
+  private JScrollBar    scrollBar;
+  private SSHSession    session;
+  private String        _host;
+  private String        _user;
+  private String        _password;
+  private boolean       exitOnClose = false;
+  private boolean       scrollUpdate;
 
   public final static double JTERM_RELEASE = 1.0 ; // Let the space before the ';'
 
@@ -32,10 +36,20 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
    */
   public MainPanel(String host, String user, String password, int width, int height, int scrollSize) {
 
+    String OS_NAME = System.getProperty("os.name");
+    String _OS_NAME = OS_NAME.toLowerCase();
+    boolean isWindows = _OS_NAME.startsWith("windows");
+
     _host = host;
     _user = user;
     _password = password;
-    textArea = new GraphicTerminal(this,width,height);
+
+    // Use a TextTerminal without antialiasaed font under X11
+    if(!isWindows)
+      textArea = new TextTerminal(this,width,height);
+    else
+      textArea = new GraphicTerminal(this,width,height);
+
     session = new SSHSession(this,width,height,scrollSize);
     textArea.setSession(session);
 
@@ -113,10 +127,6 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     else setVisible(false);
   }
 
-  void render() {
-    textArea.render();
-  }
-
   @Override
   public void adjustmentValueChanged(AdjustmentEvent e) {
     if(!scrollUpdate) {
@@ -125,8 +135,11 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     }
   }
 
-  void updateScrollBar(int scrollPos,int scrollSize,int height) {
+  void updateScrollBar() {
     scrollUpdate = true;
+    int scrollPos = textArea.scrollPos;
+    int scrollSize = textArea.terminal.getScrollSize();
+    int height = textArea.termHeight;
     scrollBar.setValues(scrollSize - scrollPos - height, height, 0, scrollSize);
     scrollUpdate = false;
   }
@@ -134,6 +147,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
     textArea.moveScroll(-3*e.getWheelRotation());
+    updateScrollBar();
     e.consume();
   }
 

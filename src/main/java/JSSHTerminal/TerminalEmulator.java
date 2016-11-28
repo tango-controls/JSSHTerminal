@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Screen buffer.
+ * Screen buffer and escape sequence handling
  *
  * @author JL PONS (derived from original Kohsuke Kawaguchi source)
  */
