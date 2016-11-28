@@ -23,7 +23,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
   private boolean       exitOnClose = false;
   private boolean       scrollUpdate;
 
-  public final static double JTERM_RELEASE = 1.0 ; // Let the space before the ';'
+  public final static double JTERM_RELEASE = 1.1 ; // Let the space before the ';'
 
   /**
    * Construct a SSH terminal frame
@@ -64,7 +64,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     scrollBar.addAdjustmentListener(this);
     scrollUpdate = false;
     getContentPane().add(scrollBar,BorderLayout.EAST);
-    setTitle("JSSHTerminal " + user + "@" + host);
+    setTitle("JSSHTerminal " +String.format("%.1f",JTERM_RELEASE)+ " " + user + "@" + host);
 
     addWindowListener(new WindowAdapter() {
 
