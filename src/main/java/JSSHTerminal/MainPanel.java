@@ -74,7 +74,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
           session.connect(_host, _user, _password);
           textArea.notifySizeChange();
         } catch (IOException ex) {
-          JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(null, "Cannot connect :" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
           setVisible(false);
           exitFrame();
         }

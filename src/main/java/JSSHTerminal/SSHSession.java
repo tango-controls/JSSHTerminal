@@ -256,7 +256,7 @@ public final class SSHSession implements UserInfo {
   @Override
   public boolean promptPassword(String message) {
 
-    if(_password!=null && retryCount==1) return true;
+    if(_password!=null && retryCount==0) return true;
 
     JPanel panel = new JPanel();
     panel.add(passwordField);

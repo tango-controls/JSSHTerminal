@@ -87,6 +87,11 @@ class Screen {
       start = swp;
     }
 
+    if(start<-(scrollSize*width-1))
+      start = -(scrollSize*width-1);
+    if(end>scr.length-1)
+      end = scr.length-1;
+
     // Look for start position
     if(getCharAt(start)==0)
       while(start>-(scrollSize*width-1) && getCharAt(start-1)==0) start--;
