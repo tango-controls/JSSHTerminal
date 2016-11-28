@@ -23,7 +23,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
   private boolean       exitOnClose = false;
   private boolean       scrollUpdate;
 
-  public final static double JTERM_RELEASE = 1.1 ; // Let the space before the ';'
+  public final static double JTERM_RELEASE = 1.2 ; // Let the space before the ';'
 
   /**
    * Construct a SSH terminal frame
