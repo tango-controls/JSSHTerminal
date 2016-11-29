@@ -61,6 +61,8 @@
                             <archive>
                                 <manifest>
                                     <mainClass>JSSHTerminal.MainPanel</mainClass>
+                                    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                    <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                                 </manifest>
                             </archive>
                         </configuration>
