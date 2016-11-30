@@ -633,15 +633,22 @@ public class TerminalEmulator {
   private Screen scr;          // Current screen
   private Screen backScr=null; // Alternate screen
   int[]   retScr;              // Temp buffer
+  private String title;        // Window title
+  private String titleBackup;  // Window title backup
 
 
   public TerminalEmulator(int width, int height, int scroll) {
     scr = new Screen(width,height,scroll);
     retScr = new int[width*height];
+    title = "";
   }
 
   public boolean isCursor(int x,int y) {
     return (scr.cx == x) && (scr.cy == y);
+  }
+
+  public String getTitle() {
+    return title;
   }
 
   public void resize(int nWidth, int nHeight) {
@@ -724,6 +731,8 @@ public class TerminalEmulator {
   public void escape() {
 
     if (buf.length() > 32) {
+      System.out.println("Warning, unexpected escape sequence:");
+      printSeq(buf);
       buf = "";
       return;
     }
@@ -761,9 +770,9 @@ public class TerminalEmulator {
     for(int i=0;i<buf.length();i++) {
       char c = buf.charAt(i);
       if(c=='\u001B')
-        System.out.print("esc");
+        System.out.print("<ESC>");
       else if (c<32)
-        System.out.print("*");
+        System.out.print("<"+Integer.toString((int) c)+">");
       else
         System.out.print(buf.charAt(i));
     }
@@ -1050,6 +1059,17 @@ public class TerminalEmulator {
     scr.csi_u(args);
   }
 
+  public void osc(int function,String param) {
+    switch (function) {
+      case 0:
+      case 2:
+        // Set terminal title
+        title = param;
+        break;
+
+    }
+  }
+
   private static interface EscapeSequence {
     void handle(TerminalEmulator t, String s, Matcher m);
   }
@@ -1064,16 +1084,24 @@ public class TerminalEmulator {
   private static final Map<Pattern, EscapeSequence> REGEXP_ESCAPE_SEQUENCES = new HashMap<Pattern, EscapeSequence>();
 
   private static abstract class CsiSequence {
-    final int arg2; // ?
 
-    protected CsiSequence(int arg2) {
-      this.arg2 = arg2;
+    protected CsiSequence() {
     }
 
     abstract void handle(TerminalEmulator t, int[] args);
   }
 
+  private static abstract class OscSequence {
+
+    protected OscSequence() {
+    }
+
+    abstract void handle(TerminalEmulator t, int func, String s);
+  }
+
   private static final Map<Character, CsiSequence> CSI_SEQUENCE = new HashMap<Character, CsiSequence>();
+
+  private static OscSequence oscSequence;
 
   static {
 
@@ -1095,7 +1123,7 @@ public class TerminalEmulator {
         }
       }
       if (m.getName().startsWith("csi_") && m.getName().length() == 5) {
-        CSI_SEQUENCE.put(m.getName().charAt(4), new CsiSequence(1) {
+        CSI_SEQUENCE.put(m.getName().charAt(4), new CsiSequence() {
           void handle(TerminalEmulator t, int[] args) {
             try {
               m.invoke(t, new Object[]{args});
@@ -1107,6 +1135,23 @@ public class TerminalEmulator {
           }
         });
       }
+
+      if (m.getName().equals("osc")) {
+        oscSequence = new OscSequence() {
+          @Override
+          void handle(TerminalEmulator t, int func, String s) {
+            try {
+              m.invoke(t, func, s);
+            } catch (IllegalAccessException e) {
+              throw new IllegalAccessError();
+            } catch (InvocationTargetException e) {
+              throw new RuntimeException(e);
+            }
+
+          }
+        };
+      }
+
     }
 
     REGEXP_ESCAPE_SEQUENCES.put(
@@ -1134,10 +1179,27 @@ public class TerminalEmulator {
         });
 
     REGEXP_ESCAPE_SEQUENCES.put(
+        // OSC
+        Pattern.compile("\u001B\\]([0-9];[\\p{Alpha}\\p{Digit}\\p{Punct} ]*)\u0007"),
+        new EscapeSequence() {
+          public void handle(TerminalEmulator t, String _, Matcher m) {
+            try {
+              String s = m.group(1);
+              String[] tokens = s.split(";");
+              if(tokens.length==2) {
+                int func = Integer.parseInt(tokens[0]);
+                oscSequence.handle(t,func,tokens[1]);
+              }
+            } catch (Exception e) {
+            }
+          }
+        });
+
+    REGEXP_ESCAPE_SEQUENCES.put(
         Pattern.compile("\u001C([^\u0007]+)\u0007"),
         NONE);
 
-    CSI_SEQUENCE.put('@', new CsiSequence(1) {
+    CSI_SEQUENCE.put('@', new CsiSequence() {
       @Override
       void handle(TerminalEmulator t, int[] args) {
         for (int i = 0; i < args[0]; i++)

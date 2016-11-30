@@ -82,7 +82,7 @@ public class GraphicTerminal extends TerminalEvent {
   }
 
 
-  public void drawComponent(Graphics g) {
+  public synchronized void drawComponent(Graphics g) {
 
     if (terminal == null) {
       g.setColor(Color.BLACK);

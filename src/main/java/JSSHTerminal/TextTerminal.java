@@ -84,7 +84,7 @@ public class TextTerminal extends TerminalEvent {
     charBuffer = new char[width];
   }
 
-  public void drawComponent(Graphics g) {
+  public synchronized void drawComponent(Graphics g) {
 
     Graphics2D g2 = (Graphics2D)g;
 

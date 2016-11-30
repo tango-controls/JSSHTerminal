@@ -31,6 +31,7 @@ public final class SSHSession implements UserInfo {
   private boolean answerYes = false;
   private boolean x11forwarding = false;
   private int retryCount;
+  private int sshPort = 22;
 
   /**
    * @param parent Parent terminal frame
@@ -47,6 +48,8 @@ public final class SSHSession implements UserInfo {
     retryCount = 0;
 
     String defaultSSHDir = System.getProperty("user.home") + "/.ssh";
+
+    // Known host
     JSch jSch = JSchSession.getJSch();
     try {
       jSch.setKnownHosts(defaultSSHDir+"/known_hosts");
@@ -54,6 +57,33 @@ public final class SSHSession implements UserInfo {
       System.out.println("Warning, jSch.setKnownHosts() failed " + e.getMessage());
     }
 
+    // Id Key
+    File f = new File(defaultSSHDir+"/id_dsa");
+    if(f.exists()) {
+      try {
+        jSch.addIdentity(f.getAbsolutePath());
+      } catch (JSchException e) {
+        System.out.println("addIdentity(~/.ssh/id_dsa) " + e.getMessage());
+      }
+    }
+
+    f = new File(defaultSSHDir+"/id_rsa");
+    if(f.exists()) {
+      try {
+        jSch.addIdentity(f.getAbsolutePath());
+      } catch (JSchException e) {
+        System.out.println("addIdentity(~/.ssh/id_rsa) " + e.getMessage());
+      }
+    }
+
+  }
+
+  /**
+   * Sets the SSH port
+   * @param port Port number
+   */
+  public void setSshPort(int port) {
+    sshPort = port;
   }
 
   /**
@@ -83,7 +113,14 @@ public final class SSHSession implements UserInfo {
 
     _password = password;
     try {
-      jschsession = JSchSession.getSession(user, null, host, 22, this, null);
+
+      jschsession = JSchSession.getSession(user, null, host, sshPort, this, null);
+      // Jump hosts
+      /*
+      int port = jschsession.getSession().setPortForwardingL(0, "draco1", sshPort);
+      JSchSession session2 = JSchSession.getSession("dserver",null,"127.0.0.1",port,this,null);
+      channel = (ChannelShell)session2.getSession().openChannel("shell");
+      */
       channel = (ChannelShell)jschsession.getSession().openChannel("shell");
       if(x11forwarding) {
           jschsession.getSession().setX11Host("127.0.0.1");
@@ -94,8 +131,6 @@ public final class SSHSession implements UserInfo {
       in = new InputStreamReader(channel.getInputStream());
       channel.setPtyType("xterm");
       channel.connect();
-      //write("ssh -X dserver@l-srrf-8");
-      //write(TerminalEmulator.getCodeENTER());
 
     } catch (JSchException e) {
       throw new IOException(e.getMessage());
@@ -129,8 +164,8 @@ public final class SSHSession implements UserInfo {
       jschsession.dispose();
 
       try {
-        pumpThread.join();
-        nagleThread.join();
+        if(pumpThread!=null) pumpThread.join();
+        if(nagleThread!=null) nagleThread.join();
       } catch (InterruptedException e) {}
       jschsession = null;
     }

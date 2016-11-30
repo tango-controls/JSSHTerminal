@@ -139,6 +139,9 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
     //long t1 = System.currentTimeMillis();
     //System.out.println("Rendering time= " + (t1-t0) + "ms");
 
+    if(terminal.getTitle().length()>0)
+      _parent.setExtraTilte(terminal.getTitle());
+
   }
 
   public void processKeyEvent(KeyEvent e) {

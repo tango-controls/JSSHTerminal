@@ -22,6 +22,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
   private String        _password;
   private boolean       exitOnClose = false;
   private boolean       scrollUpdate;
+  private String        VERSION = "-.-";
 
   /**
    * Construct a SSH terminal frame
@@ -64,7 +65,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     getContentPane().add(scrollBar,BorderLayout.EAST);
 
     // Got version from manifest
-    String VERSION = "-.-";
+
     Package p = getClass().getPackage();
     if(p!=null) VERSION = p.getImplementationVersion();
     if( VERSION==null ) VERSION = "-.-";
@@ -108,6 +109,14 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
   }
 
   /**
+   * Sets the SSH port
+   * @param port Port number
+   */
+  public void setSSHPort(int port) {
+    session.setSshPort(port);
+  }
+
+  /**
    * Automatically answer yes to question
    * @param enable Enalbe auto yes
    */
@@ -121,6 +130,10 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
    */
   public void setX11Forwarding(boolean enable) {
     session.setX11Forwarding(enable);
+  }
+
+  void setExtraTilte(String tilte) {
+    setTitle("JSSHTerminal " + VERSION + " " + tilte);
   }
 
   void exitFrame() {
@@ -207,9 +220,10 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
 
   public static void printUsage() {
 
-    System.out.println("Usage: jterminal username@host [-p password] [-y] [-s WxHxS] [-X]");
+    System.out.println("Usage: jterminal username@host [-p password] [-P port] [-y] [-s WxHxS] [-X]");
     System.out.println("       username@host username used to login on host");
     System.out.println("       -p password password used to login");
+    System.out.println("       -P SSH port number (default is 22)");
     System.out.println("       -y Answer yes to question");
     System.out.println("       -s WxHxS terminal size WidthxHeightxScrollbar");
     System.out.println("       -X Enable X11 forwarding");
@@ -222,6 +236,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     int W = 80;
     int H = 24;
     int S = 500;
+    int P = 22;
     String password = null;
     boolean yes = false;
     boolean X11 = false;
@@ -251,6 +266,13 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
           printUsage();
         argc+=2;
         continue;
+      } else if( args[argc].equals("-P") ) {
+        if(argc+1<args.length)
+          P = Integer.parseInt(args[argc+1]);
+        else
+          printUsage();
+        argc+=2;
+        continue;
       } else if( args[argc].equals("-s") ) {
         if(argc+1<args.length) {
           String sz[] = args[argc+1].split("x");
@@ -273,6 +295,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
 
     final MainPanel f = new MainPanel(uh[1],uh[0],password,W,H,S);
     f.setExitOnClose(true);
+    f.setSSHPort(P);
     f.setAnswerYes(yes);
     f.setX11Forwarding(X11);
     f.setVisible(true);
