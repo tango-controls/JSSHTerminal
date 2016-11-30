@@ -13,7 +13,9 @@ import java.io.IOException;
 
 public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelListener {
 
-  //private GraphicTerminal textArea;
+  public static final String DEFAULT_VERSION = "-.-";
+  public static final String VERSION = getVersion();
+
   private TerminalEvent textArea;
   private JScrollBar    scrollBar;
   private SSHSession    session;
@@ -22,7 +24,6 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
   private String        _password;
   private boolean       exitOnClose = false;
   private boolean       scrollUpdate;
-  private String        VERSION = "-.-";
 
   /**
    * Construct a SSH terminal frame
@@ -63,12 +64,6 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     scrollBar.addAdjustmentListener(this);
     scrollUpdate = false;
     getContentPane().add(scrollBar,BorderLayout.EAST);
-
-    // Got version from manifest
-
-    Package p = getClass().getPackage();
-    if(p!=null) VERSION = p.getImplementationVersion();
-    if( VERSION==null ) VERSION = "-.-";
     setTitle("JSSHTerminal " + VERSION + " " + user + "@" + host);
 
     addWindowListener(new WindowAdapter() {
@@ -168,6 +163,14 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     e.consume();
   }
 
+  private static String getVersion() {
+    Package p = MainPanel.class.getPackage();
+
+    //if version is set in MANIFEST.mf
+    if(p.getImplementationVersion() != null) return p.getImplementationVersion();
+
+    return DEFAULT_VERSION;
+  }
   // ----------------------------------------------------------------------
 
   static void dumpCharSet(String set) {

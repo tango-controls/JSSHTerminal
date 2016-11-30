@@ -9,6 +9,9 @@
 *.iws
 .idea/
 
+#specific script
+install.bat
+
 #ignore release if present
 release/
 
