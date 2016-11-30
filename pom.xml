@@ -4,7 +4,7 @@
 
     <groupId>org.tango</groupId>
     <artifactId>JSSHTerminal</artifactId>
-    <version>1.4</version>
+    <version>1.5-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -12,7 +12,7 @@
         <connection>scm:git:git@github.com:tango-controls/JSSHTerminal.git</connection>
         <developerConnection>scm:git:git@github.com:tango-controls/JSSHTerminal.git</developerConnection>
         <url>https://github.com/tango-controls/JSSHTerminal</url>
-        <tag>JSSHTerminal-1.4</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
