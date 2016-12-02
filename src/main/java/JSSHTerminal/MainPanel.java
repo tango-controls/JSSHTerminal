@@ -15,6 +15,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
 
   public static final String DEFAULT_VERSION = "-.-";
   public static final String VERSION = getVersion();
+  final static boolean isWindows;
 
   private TerminalEvent textArea;
   private JScrollBar    scrollBar;
@@ -24,6 +25,12 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
   private String        _password;
   private boolean       exitOnClose = false;
   private boolean       scrollUpdate;
+
+  static {
+    String OS_NAME = System.getProperty("os.name");
+    String _OS_NAME = OS_NAME.toLowerCase();
+    isWindows = _OS_NAME.startsWith("windows");
+  }
 
   /**
    * Construct a SSH terminal frame
@@ -35,10 +42,6 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
    * @param scrollSize ScrollBar height (lines)
    */
   public MainPanel(String host, String user, String password, int width, int height, int scrollSize) {
-
-    String OS_NAME = System.getProperty("os.name");
-    String _OS_NAME = OS_NAME.toLowerCase();
-    boolean isWindows = _OS_NAME.startsWith("windows");
 
     _host = host;
     _user = user;
