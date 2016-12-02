@@ -41,9 +41,9 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
   int scrollPos=0;
   Dimension size;
   MainPanel _parent;
-  int startSel=-1;
-  int endSel=-1;
   boolean isDragging;
+  MouseEvent startSel=null;
+  MouseEvent endSel=null;
 
   public void init(MainPanel parent,int width,int height,int charWidth,int charHeight) {
 
@@ -53,6 +53,7 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
     setDoubleBuffered(false);
     setFocusable(true);
     setFocusTraversalKeysEnabled(false);
+    setCursor(new Cursor(Cursor.TEXT_CURSOR));
     this.charWidth = charWidth;
     this.charHeight = charHeight;
 
@@ -290,8 +291,7 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
     if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount()==2) {
       int sX = e.getX() / charWidth;
       int sY = e.getY() / charHeight - scrollPos;
-      int offset = sX + sY * termWidth;
-      terminal.autoSelect(offset);
+      terminal.autoSelect(sX + sY*termWidth);
       copyToClipboard(terminal.getSelectedText());
       repaint();
     }
@@ -307,37 +307,40 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
   @Override
   public void mousePressed(MouseEvent e) {
 
-    int sX = e.getX() / charWidth;
-    int sY = e.getY() / charHeight - scrollPos;
 
     if(SwingUtilities.isLeftMouseButton(e)) {
-      startSel = sX + sY * termWidth;
-      terminal.clearSelection();
+      startSel = e;
+      endSel = null;
+      setSelection(startSel,endSel);
       isDragging = false;
       repaint();
     }
 
-    if(terminal.isMouseEnabled())
+    if(terminal.isMouseEnabled()) {
+      int sX = e.getX() / charWidth;
+      int sY = e.getY() / charHeight - scrollPos;
       sendMouseEvent(sX,sY,e.getButton(),true);
+    }
 
   }
 
   @Override
   public void mouseReleased(MouseEvent e) {
 
-    int sX = e.getX() / charWidth;
-    int sY = e.getY() / charHeight - scrollPos;
 
     if(SwingUtilities.isLeftMouseButton(e) && isDragging) {
-      endSel = sX + sY * termWidth;
-      terminal.setSelection(startSel, endSel);
+      endSel = e;
+      setSelection(startSel, endSel);
       copyToClipboard(terminal.getSelectedText());
       isDragging = false;
       repaint();
     }
 
-    if(terminal.isMouseEnabled())
+    if(terminal.isMouseEnabled()) {
+      int sX = e.getX() / charWidth;
+      int sY = e.getY() / charHeight - scrollPos;
       sendMouseEvent(sX,sY,e.getButton(),false);
+    }
 
   }
 
@@ -356,12 +359,45 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
 
     if(SwingUtilities.isLeftMouseButton(e)) {
       isDragging = true;
-      int sX = e.getX() / charWidth;
-      int sY = e.getY() / charHeight - scrollPos;
-      endSel = sX + sY * termWidth;
-      terminal.setSelection(startSel,endSel);
+      endSel = e;
+      setSelection(startSel, endSel);
       repaint();
     }
+
+  }
+
+  private void setSelection(MouseEvent s,MouseEvent e) {
+
+    if(s==null || e==null) {
+      terminal.clearSelection();
+      return;
+    }
+
+    int sOff = getCursorCoordinates(s);
+    int eOff = getCursorCoordinates(e);
+    if(sOff==eOff) {
+      terminal.clearSelection();
+      return;
+    }
+
+    if(sOff>eOff) {
+      int swb = sOff;
+      sOff = eOff;
+      eOff = swb;
+    }
+
+    eOff -= 1;
+    terminal.setSelection(sOff,eOff);
+
+  }
+
+  private int getCursorCoordinates(MouseEvent e) {
+
+    // 2 is ~ the half width of the text cursor
+    int sX = (e.getX() + 2 + charWidth/2 ) / charWidth;
+    int sY = e.getY() / charHeight - scrollPos;
+    int offset = sX + sY * termWidth;
+    return offset;
 
   }
 

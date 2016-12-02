@@ -23,6 +23,12 @@ class Screen {
 
   private static final int EMPTY_CH = 0x070000; // back=0,fore=7,char=0
 
+  // Character considered as a part of a word when double clicking
+  private final static char[] WORDC = {
+    '-','.','/','?','%','&','#',':','_','=','+','@','~'
+  };
+
+
   int[] scr;       // Screen buffer
   int[] scrollScr; // Screen buffer (for scrolling)
   int   scrollSize;// Scroll size
@@ -113,6 +119,26 @@ class Screen {
 
   }
 
+  private boolean isWordChar(int c) {
+
+    if(c>='A' && c<='Z')
+      return true;
+    if(c>='a' && c<='z')
+      return true;
+    if(c>='0' && c<='9')
+      return true;
+
+    // Check extra word char
+    int i=0;
+    boolean found = false;
+    while(!found && i<WORDC.length) {
+      found = WORDC[i]==c;
+      if(!found) i++;
+    }
+    return found;
+
+  }
+
   // Auto select word under offset
   public void autoSelect(int offset) {
 
@@ -121,8 +147,8 @@ class Screen {
     else {
       startSel = offset;
       endSel = offset;
-      while(startSel>-(scrollSize*width-1) && getCharAt(startSel-1)>32) startSel--;
-      while(endSel<scr.length-1 && getCharAt(endSel+1)>32) endSel++;
+      while(startSel>-(scrollSize*width-1) && isWordChar(getCharAt(startSel-1))) startSel--;
+      while(endSel<scr.length-1 && isWordChar(getCharAt(endSel+1))) endSel++;
     }
 
   }
@@ -707,7 +733,12 @@ public class TerminalEmulator {
     return scr.getScrollSize();
   }
 
-  @Esc("\u001Bc")
+  public int getCharAt(int offset) {
+    return scr.getCharAt(offset);
+  }
+
+
+    @Esc("\u001Bc")
   public void reset() {
     scr.reset();
     buf = "";
