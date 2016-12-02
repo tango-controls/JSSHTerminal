@@ -18,14 +18,36 @@ import java.io.IOException;
 
 public abstract class TerminalEvent extends JComponent implements MouseListener, MouseMotionListener {
 
-  final Color[] defaultColors = {
-      Color.BLACK,
-      Color.RED.darker(),
-      Color.GREEN.darker(),
-      Color.ORANGE.darker(),
-      Color.BLUE,
-      Color.MAGENTA,
-      Color.CYAN.darker(),
+  //final Color[] defaultColors = {
+  //    Color.BLACK,
+  //    Color.RED.darker(),
+  //    Color.GREEN.darker(),
+  //    Color.ORANGE.darker(),
+  //    Color.BLUE,
+  //    Color.MAGENTA,
+  //    Color.CYAN.darker(),
+  //    Color.WHITE
+  //};
+
+  final static Color[] defaultColors = {
+      Color.BLACK,                // Black
+      new Color(170,0,0),         // Red
+      new Color(0,170,0),         // Green
+      new Color(197,94,0),        // Orange
+      new Color(0,0,170),         // Blue
+      new Color(170,0,170),       // Magenta
+      new Color(0,170,170),       // Cyan
+      new Color(220,220,220),     // Light grey
+  };
+
+  final static Color[] defaultBrightColors = {
+      new Color(90,90,90),        // GRey
+      new Color(255,90,90),       // Light Red
+      new Color(90,255,90),       // Light Green
+      new Color(255,128,0),       // Light Orange
+      new Color(90,90,255),       // Light Blue
+      new Color(255,0,255),       // Light Magenta
+      new Color(0,255,255),       // Light Cyan
       Color.WHITE
   };
 
@@ -53,7 +75,7 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
     setDoubleBuffered(false);
     setFocusable(true);
     setFocusTraversalKeysEnabled(false);
-    setCursor(new Cursor(Cursor.TEXT_CURSOR));
+    setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
     this.charWidth = charWidth;
     this.charHeight = charHeight;
 
@@ -393,8 +415,10 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
 
   private int getCursorCoordinates(MouseEvent e) {
 
+    // On Windows the anchor of the TEXT cursor is not located at the center of the cursor !!!
     // 2 is ~ the half width of the text cursor
-    int sX = (e.getX() + 2 + charWidth/2 ) / charWidth;
+    int drift = MainPanel.isWindows?2:0;
+    int sX = (e.getX() + drift + charWidth/2 ) / charWidth;
     int sY = e.getY() / charHeight - scrollPos;
     int offset = sX + sY * termWidth;
     return offset;

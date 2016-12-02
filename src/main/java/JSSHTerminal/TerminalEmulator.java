@@ -1097,6 +1097,8 @@ public class TerminalEmulator {
         // Set terminal title
         title = param;
         break;
+      default:
+        System.out.println("Warning, unhandled OSC function #"  + function);
 
     }
   }
