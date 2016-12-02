@@ -121,17 +121,16 @@ public class GraphicTerminal extends TerminalEvent {
 
         if (reverse) {
           bgColor = defaultColors[fg];
-          fgColor = defaultColors[bg];
-        } else {
-          fgColor = defaultColors[fg];
-          bgColor = defaultColors[bg];
-        }
-
-        if (bold) {
-          if (fg == 0)
-            fgColor = Color.GRAY;
+          if(bold)
+            fgColor = defaultBrightColors[bg];
           else
-            fgColor = fgColor.brighter();
+            fgColor = defaultColors[bg];
+        } else {
+          bgColor = defaultColors[bg];
+          if(bold)
+            fgColor = defaultBrightColors[fg];
+          else
+            fgColor = defaultColors[fg];
         }
 
         if (i - scrollPos * termWidth >= terminal.getStartSelection() &&
