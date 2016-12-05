@@ -11,6 +11,7 @@
 
 #specific script
 install.bat
+install_dbg.bat
 
 #ignore release if present
 release/

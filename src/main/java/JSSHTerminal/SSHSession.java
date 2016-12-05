@@ -1,9 +1,6 @@
 package JSSHTerminal;
 
-import com.jcraft.jsch.ChannelShell;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.UserInfo;
+import com.jcraft.jsch.*;
 
 import javax.swing.*;
 import java.io.*;
@@ -115,6 +112,7 @@ public final class SSHSession implements UserInfo {
     try {
 
       jschsession = JSchSession.getSession(user, null, host, sshPort, this, null);
+
       // Jump hosts
       /*
       int port = jschsession.getSession().setPortForwardingL(0, "draco1", sshPort);
@@ -122,11 +120,19 @@ public final class SSHSession implements UserInfo {
       channel = (ChannelShell)session2.getSession().openChannel("shell");
       */
       channel = (ChannelShell)jschsession.getSession().openChannel("shell");
+
       if(x11forwarding) {
-          jschsession.getSession().setX11Host("127.0.0.1");
-          jschsession.getSession().setX11Port(6000);
-          channel.setXForwarding(true);
+
+        channel.setXForwarding(true);
+        Object[] di = getDisplayInfo();
+        String x11Host = di[1].toString();
+        int x11Port = ((Integer)di[2]).intValue();
+        setCookieFromXauth(di);
+        jschsession.getSession().setX11Host(x11Host);
+        jschsession.getSession().setX11Port(x11Port);
+
       }
+
       out = new OutputStreamWriter(channel.getOutputStream());
       in = new InputStreamReader(channel.getInputStream());
       channel.setPtyType("xterm");
@@ -151,6 +157,76 @@ public final class SSHSession implements UserInfo {
       }
     });
     nagleThread.start();
+
+  }
+
+
+  // Returns Display info
+  Object[] getDisplayInfo() {
+
+    String display = System.getenv("DISPLAY");
+    if(display==null)
+      return new Object[]{"localhost:0.0","127.0.0.1",6000};
+
+    String x11Host = "127.0.0.1";
+    int x11Port = 6000;
+
+    int commaIdx = display.indexOf(':');
+    if (commaIdx >= 0) {
+
+      // :port.display or hostname:port.display
+      if(commaIdx!=0) {
+        // hostname:port.display
+        x11Host = display.substring(0, commaIdx);
+      }
+
+      int pointIdx = display.lastIndexOf('.');
+      if (pointIdx == -1) pointIdx = display.length();
+      String pStr = display.substring(commaIdx + 1, pointIdx);
+      try {
+        x11Port = 6000 + Integer.parseInt(pStr);
+      } catch (NumberFormatException e) {
+      }
+
+    }
+
+    return new Object[] {
+        display,x11Host,x11Port
+    };
+
+  }
+
+
+  void setCookieFromXauth(Object[] di) {
+
+    if(((Integer)di[2]).intValue()==6000)
+      return;
+
+    // We have a forwarded connection, cookie must be set
+    try {
+
+      // xauth list $DISPLAY
+      // hostname/unix:11  MIT-MAGIC-COOKIE-1  40f02ff3cbdc0c5716b2ebd1611f357e
+
+      Process p = Runtime.getRuntime().exec("xauth list " + di[0].toString());
+      p.waitFor();
+
+      StringBuffer output = new StringBuffer();
+      BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      String line = reader.readLine();
+      String[] lines = line.split("  ");
+      if(lines.length!=3) {
+        System.out.println("Warning, X11 authentication failed, unexpected xauth response :" + line);
+        return;
+      }
+      jschsession.getSession().setX11Cookie(lines[2]);
+      return;
+
+    } catch (IOException e1) {
+      System.out.println("Warning, X11 authentication failed, xauth execution failed :" + e1.getMessage());
+    } catch (InterruptedException e2) {
+      System.out.println("Warning, X11 authentication failed, xauth execution failed :" + e2.getMessage());
+    }
 
   }
 
