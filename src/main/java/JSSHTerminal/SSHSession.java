@@ -130,6 +130,7 @@ public final class SSHSession implements UserInfo {
         setCookieFromXauth(di);
         jschsession.getSession().setX11Host(x11Host);
         jschsession.getSession().setX11Port(x11Port);
+        //System.out.println("X11 forwarding " + x11Host + ":" + (x11Port-6000));
 
       }
 
@@ -208,24 +209,34 @@ public final class SSHSession implements UserInfo {
       // xauth list $DISPLAY
       // hostname/unix:11  MIT-MAGIC-COOKIE-1  40f02ff3cbdc0c5716b2ebd1611f357e
 
-      Process p = Runtime.getRuntime().exec("xauth list " + di[0].toString());
+      String display = di[0].toString();
+      String arg;
+      if(display.startsWith(":"))
+        arg = di[1].toString() + display;
+      else
+        arg = display;
+
+      Process p = Runtime.getRuntime().exec("xauth list " + arg);
       p.waitFor();
 
       StringBuffer output = new StringBuffer();
       BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
       String line = reader.readLine();
-      String[] lines = line.split("  ");
-      if(lines.length!=3) {
-        System.out.println("Warning, X11 authentication failed, unexpected xauth response :" + line);
-        return;
+      if( line!=null ) {
+        String[] lines = line.split("  ");
+        if(lines.length!=3) {
+          System.out.println("Warning, no xauth data :" + line);
+          return;
+        }
+        jschsession.getSession().setX11Cookie(lines[2]);
+      } else {
+        System.out.println("Warning, no xauth data" );
       }
-      jschsession.getSession().setX11Cookie(lines[2]);
-      return;
 
     } catch (IOException e1) {
-      System.out.println("Warning, X11 authentication failed, xauth execution failed :" + e1.getMessage());
+      System.out.println("Warning, no xauth data : :" + e1.getMessage());
     } catch (InterruptedException e2) {
-      System.out.println("Warning, X11 authentication failed, xauth execution failed :" + e2.getMessage());
+      System.out.println("Warning, no xauth data : :" + e2.getMessage());
     }
 
   }
