@@ -16,6 +16,7 @@ public final class SSHSession implements UserInfo {
   private JSchSession jschsession = null;
   private JTextField passwordField = new JPasswordField(20);
   private String _password = null;
+  private String _command = null;
   private MainPanel _parent;
 
   private Reader in = null;
@@ -97,6 +98,15 @@ public final class SSHSession implements UserInfo {
    */
   public void setX11Forwarding(boolean enable) {
     x11forwarding = enable;
+  }
+
+  /**
+   * Execute the given command
+   * @param cmd Command to be executed (Do not add \n at the end)
+   */
+  public void execCommand(String cmd) throws IOException {
+    write(cmd);
+    write(TerminalEmulator.getCodeENTER());
   }
 
   /**

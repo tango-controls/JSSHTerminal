@@ -25,6 +25,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
   private String        _password;
   private boolean       exitOnClose = false;
   private boolean       scrollUpdate;
+  private String        command = null;
 
   static {
     String OS_NAME = System.getProperty("os.name");
@@ -75,6 +76,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
       public void windowOpened(WindowEvent e) {
         try {
           session.connect(_host, _user, _password);
+          if(command!=null) session.execCommand(command);
           textArea.notifySizeChange();
         } catch (IOException ex) {
           JOptionPane.showMessageDialog(null, "Cannot connect :" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -104,6 +106,14 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
    */
   public void setExitOnClose(boolean exitOnClose) {
     this.exitOnClose = exitOnClose;
+  }
+
+  /**
+   * Execute the given command after connection
+   * @param cmd Command to be executed (Do not add \n at the end)
+   */
+  public void setCommand(String cmd) {
+   command = cmd;
   }
 
   /**
@@ -226,13 +236,14 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
 
   public static void printUsage() {
 
-    System.out.println("Usage: jterminal username@host [-p password] [-P port] [-y] [-s WxHxS] [-X]");
+    System.out.println("Usage: jterminal username@host [-p password] [-P port] [-y] [-s WxHxS] [-X] [-c command]");
     System.out.println("       username@host username used to login on host");
     System.out.println("       -p password password used to login");
     System.out.println("       -P SSH port number (default is 22)");
     System.out.println("       -y Answer yes to question");
     System.out.println("       -s WxHxS terminal size WidthxHeightxScrollbar");
     System.out.println("       -X Enable X11 forwarding");
+    System.out.println("       -c command Execute command after connection");
     System.exit(0);
 
   }
@@ -246,6 +257,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     String password = null;
     boolean yes = false;
     boolean X11 = false;
+    String command = null;
 
     if(args.length==0)
       printUsage();
@@ -268,6 +280,13 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
       } else if( args[argc].equals("-p") ) {
         if(argc+1<args.length)
           password = args[argc+1];
+        else
+          printUsage();
+        argc+=2;
+        continue;
+      } else if( args[argc].equals("-c") ) {
+        if(argc+1<args.length)
+          command = args[argc+1];
         else
           printUsage();
         argc+=2;
@@ -304,6 +323,7 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     f.setSSHPort(P);
     f.setAnswerYes(yes);
     f.setX11Forwarding(X11);
+    f.setCommand(command);
     f.setVisible(true);
 
   }
