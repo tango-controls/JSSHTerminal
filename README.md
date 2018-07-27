@@ -12,7 +12,7 @@ Build the project with maven and install JSSHTerminal-VERSION.jar or download JS
 
 ## Running JSSHTerminal
 
-'''
+```
 java -cp JSSHTerminal-VERSION.jar JSSHTerminal.MainPanel username@host [-p password] [-P port] [-y] [-s WxHxS] [-X] [-c command]
        username@host username used to login on host
        -p password password used to login
@@ -21,4 +21,4 @@ java -cp JSSHTerminal-VERSION.jar JSSHTerminal.MainPanel username@host [-p passw
        -s WxHxS terminal size WidthxHeightxScrollbar
        -X Enable X11 forwarding
        -c command Execute command after connection
-'''
+```
