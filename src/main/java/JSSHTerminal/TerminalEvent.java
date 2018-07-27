@@ -241,6 +241,21 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
       case KeyEvent.VK_TAB:
         code= TerminalEmulator.getCodeTAB();
         break;
+      case KeyEvent.VK_DELETE:
+        code= TerminalEmulator.getCodeDELETE();
+        break;
+      case KeyEvent.VK_PAGE_UP:
+        code=TerminalEmulator.getCodeScrollUp();
+        break;
+      case KeyEvent.VK_PAGE_DOWN:
+        code=TerminalEmulator.getCodeScrollDown();
+        break;
+      case KeyEvent.VK_HOME:
+        code=TerminalEmulator.getCodeHome();
+        break;
+      case KeyEvent.VK_END:
+        code=TerminalEmulator.getCodeEnd();
+        break;
     }
 
     if(code!=null){

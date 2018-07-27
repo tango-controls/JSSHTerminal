@@ -1243,10 +1243,15 @@ public class TerminalEmulator {
   }
 
   private static byte[] ENTER = {(byte) 0x0d};
-  private static byte[] UP = {(byte) 0x1b, (byte) 0x4f, (byte) 0x41};
-  private static byte[] DOWN = {(byte) 0x1b, (byte) 0x4f, (byte) 0x42};
-  private static byte[] RIGHT = {(byte) 0x1b, (byte)/*0x5b*/0x4f, (byte) 0x43};
-  private static byte[] LEFT = {(byte) 0x1b, (byte)/*0x5b*/0x4f, (byte) 0x44};
+  private static byte[] UP = {(byte) 0x1b, (byte) 'O', (byte) 'A'};
+  private static byte[] DOWN = {(byte) 0x1b, (byte) 'O', (byte) 'B'};
+  private static byte[] RIGHT = {(byte) 0x1b, (byte) 'O', (byte) 'C'};
+  private static byte[] LEFT = {(byte) 0x1b, (byte) 'O', (byte) 'D'};
+  private static byte[] DELETE = {(byte) 0x1b, (byte) '[', (byte) '3', (byte) '~'};
+  private static byte[] SCROLL_UP = {(byte) 0x1b, (byte) '[', (byte) '5', (byte) '~'};
+  private static byte[] SCROLL_DOWN = {(byte) 0x1b, (byte) '[', (byte) '6', (byte) '~'};
+  private static byte[] HOME = {(byte) 0x1b, (byte) '[', (byte) '1', (byte) '~'};
+  private static byte[] END = {(byte) 0x1b, (byte) '[', (byte) '4', (byte) '~'};
   private static byte[] F1 = {(byte) 0x1b, (byte) 'O', (byte) 'P'};
   private static byte[] F2 = {(byte) 0x1b, (byte) 'O', (byte) 'Q'};
   private static byte[] F3 = {(byte) 0x1b, (byte) 'O', (byte) 'R'};
@@ -1275,6 +1280,26 @@ public class TerminalEmulator {
 
   static public byte[] getCodeRIGHT() {
     return RIGHT;
+  }
+
+  static public byte[] getCodeDELETE() {
+    return DELETE;
+  }
+
+  static public byte[] getCodeScrollUp() {
+    return SCROLL_UP;
+  }
+
+  static public byte[] getCodeScrollDown() {
+    return SCROLL_DOWN;
+  }
+
+  static public byte[] getCodeHome() {
+    return HOME;
+  }
+
+  static public byte[] getCodeEnd() {
+    return END;
   }
 
   static public byte[] getCodeLEFT() {
