@@ -41,8 +41,9 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
    * @param width Terminal width (character)
    * @param height Terminal height (character)
    * @param scrollSize ScrollBar height (lines)
+   * @param center Center on screen
    */
-  public MainPanel(String host, String user, String password, int width, int height, int scrollSize) {
+  public MainPanel(String host, String user, String password, int width, int height, int scrollSize, boolean center) {
 
     _host = host;
     _user = user;
@@ -95,9 +96,23 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     addMouseWheelListener(this);
 
     pack();
-    setLocationRelativeTo(null);
+    if(center)
+      setLocationRelativeTo(null);
     setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
+  }
+
+  /**
+   * Construct a SSH terminal frame
+   * @param host Host to connect
+   * @param user Username
+   * @param password Password (if null, password will be prompted)
+   * @param width Terminal width (character)
+   * @param height Terminal height (character)
+   * @param scrollSize ScrollBar height (lines)
+   */
+  public MainPanel(String host, String user, String password, int width, int height, int scrollSize) {
+    this(host,user,password,width,height,scrollSize,true);
   }
 
   /**

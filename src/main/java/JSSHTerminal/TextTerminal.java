@@ -7,7 +7,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 /**
- * Test terminal: Use Java font to render
+ * Text terminal: Use Java font to render
  *
  * @author JL PONS
  */
