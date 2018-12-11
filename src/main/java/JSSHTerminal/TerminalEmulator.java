@@ -761,12 +761,14 @@ public class TerminalEmulator {
   // Handle escape sequence
   public void escape() {
 
+    /*
     if (buf.length() > 32) {
       System.out.println("Warning, unexpected escape sequence:");
       printSeq(buf);
       buf = "";
       return;
     }
+    */
 
     EscapeSequence es = ESCAPE_SEQUENCES.get(buf);
     if (es != null) {
