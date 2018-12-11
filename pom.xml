@@ -4,7 +4,7 @@
 
     <groupId>org.tango</groupId>
     <artifactId>JSSHTerminal</artifactId>
-    <version>1.12-SNAPSHOT</version>
+    <version>1.13-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
