@@ -181,6 +181,7 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
     int keycode=e.getKeyCode();
     byte[] code=null;
 
+    // Function keys
     switch(keycode){
       case KeyEvent.VK_CONTROL:
       case KeyEvent.VK_SHIFT:
@@ -268,13 +269,39 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
       return;
     }
 
-    char keychar=e.getKeyChar();
-    if((keychar&0xff00)==0){
+    char keyChar;
+
+    switch(keycode){
+
+      // Dead key (US international keyboard)
+
+      case KeyEvent.VK_DEAD_GRAVE:
+        if(e.isShiftDown()) {
+          keyChar = '~';
+        } else {
+          keyChar = '`';
+        }
+        break;
+
+      case KeyEvent.VK_DEAD_ACUTE:
+        if(e.isShiftDown()) {
+          keyChar = '"';
+        } else {
+          keyChar = '\'';
+        }
+        break;
+
+      default:
+        keyChar = e.getKeyChar();
+
+    }
+
+    if((keyChar&0xff00)==0){
       try {
-        session.write(new byte[]{(byte) e.getKeyChar()});
+        session.write(new byte[]{(byte) keyChar});
         scrollPos = 0;
-      }
-      catch(Exception ee){
+      } catch(Exception ee){
+        ee.printStackTrace();
       }
     }
 
