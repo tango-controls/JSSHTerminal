@@ -167,27 +167,54 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
 
   }
 
+  private boolean isCtrlKey(int keyCode) {
+    return (keyCode==KeyEvent.VK_CONTROL) ||
+           (keyCode==KeyEvent.VK_SHIFT) ||
+           (keyCode==KeyEvent.VK_ALT) ||
+           (keyCode==KeyEvent.VK_CAPS_LOCK);
+  }
+
+
   public void processKeyEvent(KeyEvent e) {
 
     int id=e.getID();
-    if(id==KeyEvent.KEY_PRESSED && session!=null)
-      keyPressed(e);
+    int keyCode = e.getKeyCode();
+    if(isCtrlKey(keyCode)) {
+      e.consume();
+      return;
+    }
+
+    // Handle function key
+    if(id==KeyEvent.KEY_PRESSED)
+      functionKey(keyCode);
+
+    if(id==KeyEvent.KEY_TYPED) {
+
+      int keyChar = e.getKeyChar();
+      if(keyChar<128) {
+        try {
+          session.write(new byte[]{(byte) e.getKeyChar()});
+          scrollPos = 0;
+        } catch(Exception ee){
+          ee.printStackTrace();
+        }
+      }
+
+    }
+
     e.consume();
 
   }
 
-  public void keyPressed(KeyEvent e) {
+  public void functionKey(int keycode) {
 
-    int keycode=e.getKeyCode();
+    if(session==null)
+      return;
+
     byte[] code=null;
 
     // Function keys
     switch(keycode){
-      case KeyEvent.VK_CONTROL:
-      case KeyEvent.VK_SHIFT:
-      case KeyEvent.VK_ALT:
-      case KeyEvent.VK_CAPS_LOCK:
-        return;
       case KeyEvent.VK_ENTER:
         code= TerminalEmulator.getCodeENTER();
         break;
@@ -267,42 +294,6 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
       }
       scrollPos = 0;
       return;
-    }
-
-    char keyChar;
-
-    switch(keycode){
-
-      // Dead key (US international keyboard)
-
-      case KeyEvent.VK_DEAD_GRAVE:
-        if(e.isShiftDown()) {
-          keyChar = '~';
-        } else {
-          keyChar = '`';
-        }
-        break;
-
-      case KeyEvent.VK_DEAD_ACUTE:
-        if(e.isShiftDown()) {
-          keyChar = '"';
-        } else {
-          keyChar = '\'';
-        }
-        break;
-
-      default:
-        keyChar = e.getKeyChar();
-
-    }
-
-    if((keyChar&0xff00)==0){
-      try {
-        session.write(new byte[]{(byte) keyChar});
-        scrollPos = 0;
-      } catch(Exception ee){
-        ee.printStackTrace();
-      }
     }
 
   }
