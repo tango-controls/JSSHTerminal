@@ -8,6 +8,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -31,6 +32,7 @@ public class GraphicTerminal extends TerminalEvent {
   private int lastFg=-1;
   private int lastCharSet=-1;
   private Graphics tmpImgG;
+  private AffineTransform identityTr;
 
   public GraphicTerminal(MainPanel parent,int width,int height) {
 
@@ -45,6 +47,7 @@ public class GraphicTerminal extends TerminalEvent {
     tmpImg = new BufferedImage(charWidth,charHeight,BufferedImage.TYPE_INT_RGB);
     tmpImgG = tmpImg.getGraphics();
     tmpBuffer = new int[charWidth*charHeight];
+    identityTr = new AffineTransform();
     loadFont();
 
   }
@@ -91,6 +94,8 @@ public class GraphicTerminal extends TerminalEvent {
     }
 
     Graphics scrG = screen.getGraphics();
+    // Reset transformation to identity
+    ((Graphics2D)g).setTransform(identityTr);
     paintTo(scrG);
     scrG.dispose();
     g.drawImage(screen,0,0,null);
