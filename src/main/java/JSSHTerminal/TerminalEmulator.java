@@ -1266,7 +1266,6 @@ public class TerminalEmulator {
   private static byte[] F10 = {(byte) 0x1b, (byte) '[', (byte) '2', (byte) '1', (byte) '~'};
   private static byte[] F11 = {(byte) 0x1b, (byte) '[', (byte) '2', (byte) '3', (byte) '~'};
   private static byte[] F12 = {(byte) 0x1b, (byte) '[', (byte) '2', (byte) '4', (byte) '~'};
-  private static byte[] tab = {(byte) 0x09};
 
   static public byte[] getCodeENTER() {
     return ENTER;
@@ -1354,10 +1353,6 @@ public class TerminalEmulator {
 
   static public byte[] getCodeF12() {
     return F12;
-  }
-
-  static public byte[] getCodeTAB() {
-    return tab;
   }
 
 }

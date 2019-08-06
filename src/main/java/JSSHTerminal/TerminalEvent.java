@@ -178,6 +178,10 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
   public void processKeyEvent(KeyEvent e) {
 
     int id=e.getID();
+
+    if(e.isConsumed())
+      return;
+
     int keyCode = e.getKeyCode();
     if(isCtrlKey(keyCode)) {
       e.consume();
@@ -185,17 +189,31 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
     }
 
     // Handle function key
-    if(id==KeyEvent.KEY_PRESSED)
-      functionKey(keyCode);
+    if (id == KeyEvent.KEY_PRESSED) {
 
-    if(id==KeyEvent.KEY_TYPED) {
+      byte[] fCode = functionKey(keyCode);
+      if (fCode != null) {
+        try {
+          session.write(fCode);
+        } catch (Exception ee) {
+          ee.printStackTrace();
+        }
+        scrollPos = 0;
+        e.consume();
+        return;
+      }
+
+    }
+
+    if (id == KeyEvent.KEY_TYPED) {
 
       int keyChar = e.getKeyChar();
-      if(keyChar<128) {
+      // keyChar 127 = DEL (escape sequence)
+      if (keyChar<127) {
         try {
           session.write(new byte[]{(byte) e.getKeyChar()});
           scrollPos = 0;
-        } catch(Exception ee){
+        } catch (Exception ee) {
           ee.printStackTrace();
         }
       }
@@ -206,95 +224,58 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
 
   }
 
-  public void functionKey(int keycode) {
+  public byte[] functionKey(int keycode) {
 
     if(session==null)
-      return;
-
-    byte[] code=null;
+      return null;
 
     // Function keys
     switch(keycode){
-      case KeyEvent.VK_ENTER:
-        code= TerminalEmulator.getCodeENTER();
-        break;
       case KeyEvent.VK_UP:
-        code= TerminalEmulator.getCodeUP();
-        break;
+        return TerminalEmulator.getCodeUP();
       case KeyEvent.VK_DOWN:
-        code= TerminalEmulator.getCodeDOWN();
-        break;
+        return TerminalEmulator.getCodeDOWN();
       case KeyEvent.VK_RIGHT:
-        code= TerminalEmulator.getCodeRIGHT();
-        break;
+        return TerminalEmulator.getCodeRIGHT();
       case KeyEvent.VK_LEFT:
-        code= TerminalEmulator.getCodeLEFT();
-        break;
+        return TerminalEmulator.getCodeLEFT();
       case KeyEvent.VK_F1:
-        code= TerminalEmulator.getCodeF1();
-        break;
+        return TerminalEmulator.getCodeF1();
       case KeyEvent.VK_F2:
-        code= TerminalEmulator.getCodeF2();
-        break;
+        return TerminalEmulator.getCodeF2();
       case KeyEvent.VK_F3:
-        code= TerminalEmulator.getCodeF3();
-        break;
+        return TerminalEmulator.getCodeF3();
       case KeyEvent.VK_F4:
-        code= TerminalEmulator.getCodeF4();
-        break;
+        return TerminalEmulator.getCodeF4();
       case KeyEvent.VK_F5:
-        code= TerminalEmulator.getCodeF5();
-        break;
+        return TerminalEmulator.getCodeF5();
       case KeyEvent.VK_F6:
-        code= TerminalEmulator.getCodeF6();
-        break;
+        return TerminalEmulator.getCodeF6();
       case KeyEvent.VK_F7:
-        code= TerminalEmulator.getCodeF7();
-        break;
+        return TerminalEmulator.getCodeF7();
       case KeyEvent.VK_F8:
-        code= TerminalEmulator.getCodeF8();
-        break;
+        return TerminalEmulator.getCodeF8();
       case KeyEvent.VK_F9:
-        code= TerminalEmulator.getCodeF9();
-        break;
+        return TerminalEmulator.getCodeF9();
       case KeyEvent.VK_F10:
-        code= TerminalEmulator.getCodeF10();
-        break;
+        return TerminalEmulator.getCodeF10();
       case KeyEvent.VK_F11:
-        code= TerminalEmulator.getCodeF11();
-        break;
+        return TerminalEmulator.getCodeF11();
       case KeyEvent.VK_F12:
-        code= TerminalEmulator.getCodeF12();
-        break;
-      case KeyEvent.VK_TAB:
-        code= TerminalEmulator.getCodeTAB();
-        break;
+        return TerminalEmulator.getCodeF12();
       case KeyEvent.VK_DELETE:
-        code= TerminalEmulator.getCodeDELETE();
-        break;
+        return TerminalEmulator.getCodeDELETE();
       case KeyEvent.VK_PAGE_UP:
-        code=TerminalEmulator.getCodeScrollUp();
-        break;
+        return TerminalEmulator.getCodeScrollUp();
       case KeyEvent.VK_PAGE_DOWN:
-        code=TerminalEmulator.getCodeScrollDown();
-        break;
+        return TerminalEmulator.getCodeScrollDown();
       case KeyEvent.VK_HOME:
-        code=TerminalEmulator.getCodeHome();
-        break;
+        return TerminalEmulator.getCodeHome();
       case KeyEvent.VK_END:
-        code=TerminalEmulator.getCodeEnd();
-        break;
+        return TerminalEmulator.getCodeEnd();
     }
 
-    if(code!=null){
-      try{
-        session.write(code);
-      } catch(Exception ee){
-        ee.printStackTrace();
-      }
-      scrollPos = 0;
-      return;
-    }
+    return null;
 
   }
 
