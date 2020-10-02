@@ -211,7 +211,12 @@ public abstract class TerminalEvent extends JComponent implements MouseListener,
       // keyChar 127 = DEL (escape sequence)
       if (keyChar<127) {
         try {
-          session.write(new byte[]{(byte) e.getKeyChar()});
+          if( keyChar==10 ) {
+            // Convert \n to \r
+            session.write(new byte[]{(byte)'\r'});
+          } else {
+            session.write(new byte[]{(byte) keyChar});
+          }
           scrollPos = 0;
         } catch (Exception ee) {
           ee.printStackTrace();

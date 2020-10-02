@@ -155,6 +155,14 @@ public class MainPanel extends JFrame implements AdjustmentListener,MouseWheelLi
     session.setX11Forwarding(enable);
   }
 
+  /**
+   * Output a string to the terminal
+   * @param s Message to output
+   */
+  public void write(String s) {
+    session.getTerminal().write(s.toCharArray(),s.length());
+  }
+
   void setExtraTilte(String tilte) {
     setTitle("JSSHTerminal " + VERSION + " " + tilte);
   }
