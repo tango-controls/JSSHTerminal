@@ -30,7 +30,7 @@ public class MultiTerminal extends JFrame implements ActionListener {
   private JLabel userLabel;
   private JTextField userText;
   private JLabel passwordLabel;
-  private JTextField passwordText;
+  private JPasswordField passwordText;
   private JLabel termDimLabel;
   private JTextField termDimText;
   private JLabel commandLabel;
@@ -60,7 +60,7 @@ public class MultiTerminal extends JFrame implements ActionListener {
     userText = new JTextField();
     userLabel = new JLabel();
     passwordLabel = new JLabel();
-    passwordText = new JTextField();
+    passwordText = new JPasswordField();
     connectBtn = new JButton();
     loadButton = new JButton();
     termDimLabel = new JLabel();
@@ -119,7 +119,7 @@ public class MultiTerminal extends JFrame implements ActionListener {
         // Save pref
         prefs.put("HostList",hostList.getText());
         prefs.put("User",userText.getText());
-        prefs.put("Password",passwordText.getText());
+        prefs.put("Password",String.valueOf(passwordText.getPassword()));
         prefs.put("TermDim",termDimText.getText());
         prefs.put("LastDir",prefLastDir);
         prefs.put("Command", commandText.getText());
@@ -196,7 +196,7 @@ public class MultiTerminal extends JFrame implements ActionListener {
 
       for(int termCount=0;termCount<hList.length;termCount++) {
 
-        MainPanel f = new MainPanel(hList[termCount],userText.getText(),passwordText.getText(),termD.width,termD.height,500);
+        MainPanel f = new MainPanel(hList[termCount],userText.getText(),String.valueOf(passwordText.getPassword()),termD.width,termD.height,500);
         f.setExitOnClose(true);
         f.setAnswerYes(true);
         if(command.length()>0)
